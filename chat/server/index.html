@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Server Logs</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.slim.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            var socket = io.connect();
+            socket.on('connect', function() {
+                socket.emit('server_message', {data: 'I\'m connected!'});
+            });
+            socket.on('disconnect', function() {
+                $('#log').append('<br>Disconnected');
+            });
+            socket.on('server_message', function(msg) {
+                $('#log').append('<br>' + msg.data);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Logs</h1>
+    <div><p id="log"></p></div>
+</body>
+</html>
