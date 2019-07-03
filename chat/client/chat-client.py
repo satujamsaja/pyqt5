@@ -165,7 +165,7 @@ class ChatClient(QMainWindow):
                 self.sio.emit('join', {'room': self.current_channel})
                 self.join = True
             elif self.current_channel != self.channel.text():
-                self.sio.emit('leave', {'root': self.current_channel})
+                self.sio.emit('leave', {'room': self.current_channel})
                 self.current_channel = self.channel.text()
                 self.sio.emit('join', {'room': self.current_channel})
 
