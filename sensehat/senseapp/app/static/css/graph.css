@@ -1,0 +1,26 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.graph-body {
+    margin:100px 0px;
+}
+
+.graph-container {
+    width: 100%;
+}
+
+.graph-container .graph-col {
+    width: 33%;
+    float: left;
+}
+
+h1 {
+    display: block;
+    text-align: center;
+}
+
+h2 {
+    margin-left: 50px;
+    text-align: center;
+}

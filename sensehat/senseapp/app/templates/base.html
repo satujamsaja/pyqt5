@@ -1,0 +1,17 @@
+<html>
+    <head>
+    {% if title %}
+        <title>{{ title }}</title>
+    {% else %}
+        <title>Sense App</title>
+    {% endif %}
+    <script src="/static/js/jquery-3.4.1.min.js"></script>
+    <script src="/static/js/plotly-latest.min.js"></script>
+    <script src="/static/js/graph.js"></script>
+    <link href="/static/css/graph.css" rel="stylesheet" type="text/css">
+    </head>
+    <body>
+        {% block content %}{% endblock %}
+    </body>
+</html>
+

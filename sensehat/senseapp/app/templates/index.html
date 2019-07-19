@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="graph-body">
+<h1>Realtime Sense Hat Plotting</h1>
+<div class="graph-container">
+    <div class="graph-col">
+        <h2>Temperature</h2>
+        <div id="temperature" class="graph"></div>
+    </div>
+    <div class="graph-col">
+        <h2>Humidity</h2>
+        <div id="humidity" class="graph"></div>
+    </div>
+    <div class="graph-col">
+        <h2>Pressure</h2>
+        <div id="pressure" class="graph"></div>
+    </div>
+</div>
+</div>
+{% endblock %}
