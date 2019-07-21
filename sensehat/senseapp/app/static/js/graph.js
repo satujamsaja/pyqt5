@@ -1,5 +1,5 @@
 $(document).ready(function($) {
-    var url = 'http://localhost:5000/api/sense';
+    var url = 'http://192.168.1.13:5000/api/sense';
     var cnt = 0;
 
     function init_plot() {

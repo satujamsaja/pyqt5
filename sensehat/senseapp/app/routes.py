@@ -3,7 +3,9 @@ from flask import request
 from flask import jsonify
 from app import app
 import random
+import os
 from datetime import datetime
+from sense_hat import SenseHat
 
 # Homepage
 @app.route('/')
@@ -14,10 +16,16 @@ def index():
 # API Environtment.
 @app.route('/api/sense', methods = ['GET'])
 def api_sense():
+    sense = SenseHat()
+    sense.clear()
+    # Get CPU Temp.
+    cpu_temp = os.popen('vcgencmd measure_temp').readline()
+    temp = float(cpu_temp.replace("temp=","").replace("'C\n",""))
+    t = sense.get_temperature()
     data = {
-        'temperature': random.randint(20, 50),
-        'humidity': random.randint(1, 100),
-        'pressure': random.randint(10000, 11000),
+        'temperature': t - ((temp-t)/1.5),
+        'humidity': sense.get_humidity(),
+        'pressure': sense.get_pressure(),
         'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
 
