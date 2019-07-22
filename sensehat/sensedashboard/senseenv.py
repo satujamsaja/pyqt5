@@ -1,11 +1,13 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QHBoxLayout, QVBoxLayout, QLCDNumber, QGroupBox, QWidget, \
     QFormLayout, QLineEdit, QPushButton, QComboBox
-from PyQt5.QtCore import QTimer
-import random
+from PyQt5.QtCore import QTimer, pyqtSlot
 import pyqtgraph as pg
 from senseDialog import SerialSourceDialog, HttpSourceDialog
+from senseSerialThread import SenseSerialThread
 import requests
+import serial
+
 
 class SenseEnvironment(QMainWindow):
 
@@ -46,10 +48,6 @@ class SenseEnvironment(QMainWindow):
         self.save_btn = QPushButton("Save log")
         self.plot_start = False
 
-        # QLine edit.
-        self.interval_field = QLineEdit()
-        self.interval_field.setPlaceholderText("1")
-
         # val
         self.cnt = 0
         self.temp = 0
@@ -58,12 +56,21 @@ class SenseEnvironment(QMainWindow):
 
         # Timer
         self.timer = QTimer()
-        self.timer.setInterval(1000)
         self.timer.timeout.connect(self.plot_update)
+        self.interval = 1
+
+        # QLine edit.
+        self.interval_field = QLineEdit()
+        self.interval_field.setText(str(self.interval))
+
+        # Init serial thread.
+        self.thread = SenseSerialThread(self)
 
         # Source
         self.source_url = None
         self.source = None
+        self.serial_port = None
+        self.serial_baud = None
 
         self.init_dashboard_ui()
         self.show()
@@ -143,17 +150,42 @@ class SenseEnvironment(QMainWindow):
                     QApplication.processEvents()
 
     """
+    Update plot serial.
+    """
+    def plot_update_serial(self):
+        pass
+
+    """
     Start/stop plotting.
     """
     def plot_start(self):
-        if self.plot_start is not True:
-            self.timer.start()
-            self.control_btn.setText("Stop plot")
-            self.plot_start = True
-        else:
-            self.timer.stop()
-            self.control_btn.setText("Start plot")
-            self.plot_start = False
+        if self.source == 'HTTP API':
+            self.interval = int(self.interval_field.text())
+            if self.plot_start is not True:
+                self.timer.start(self.interval)
+                self.control_btn.setText("Stop plot")
+                self.plot_start = True
+            else:
+                self.timer.stop()
+                self.control_btn.setText("Start plot")
+                self.plot_start = False
+
+        if self.source == 'Serial port':
+            if self.plot_start is not True:
+                self.thread.interval = self.interval
+                self.thread.serial_port = self.serial_port
+                self.thread.serial_baud = self.serial_baud
+                self.thread.serial_start = True
+                self.thread.serial_data.connect(self.source_serial_port)
+                self.thread.start()
+                self.control_btn.setText("Stop plot")
+                self.plot_start = True
+            else:
+                self.thread.serial_start = False
+                self.thread.quit()
+                self.thread.wait()
+                self.control_btn.setText("Start plot")
+                self.plot_start = False
 
     """
     Select source data.
@@ -164,7 +196,8 @@ class SenseEnvironment(QMainWindow):
         if selected == 'Serial port':
             serial_source = SerialSourceDialog()
             if serial_source.exec_():
-                pass
+                self.serial_port = serial_source.source_port.text()
+                self.serial_baud = int(serial_source.source_baud.text())
 
         if selected == 'HTTP API':
             http_source = HttpSourceDialog()
@@ -190,8 +223,20 @@ class SenseEnvironment(QMainWindow):
     """
     Get data via serial port.
     """
-    def source_serial_port(self):
-        pass
+    @pyqtSlot(str)
+    def source_serial_port(self, data):
+        self.cnt += self.interval
+        data_str = data.split(",")
+        self.temp = data_str[0]
+        self.humidity = data_str[1]
+        self.pressure = data_str[2]
+        self.temp_value.display(self.temp)
+        self.humidity_value.display(self.humidity)
+        self.pressure_value.display(self.pressure)
+        self.plot_temp.plot([self.cnt], [self.temp], pen=None, symbol="+", symbolSize=10)
+        self.plot_humidity.plot([self.cnt], [self.humidity], pen=None, symbol="+", symbolSize=10)
+        self.plot_pressure.plot([self.cnt], [self.pressure], pen=None, symbol="+", symbolSize=10)
+        QApplication.processEvents()
 
 
 if __name__ == '__main__':
