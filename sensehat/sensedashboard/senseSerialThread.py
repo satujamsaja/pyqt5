@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QThread, pyqtSignal
 import serial
+import time
 
 
 class SenseSerialThread(QThread):
@@ -10,6 +11,7 @@ class SenseSerialThread(QThread):
         self.serial_port = None
         self.serial_baud = None
         self.serial_start = False
+        self.interval = 1
 
     def run(self):
         while self.serial_start:

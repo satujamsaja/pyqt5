@@ -6,7 +6,7 @@ import pyqtgraph as pg
 from senseDialog import SerialSourceDialog, HttpSourceDialog
 from senseSerialThread import SenseSerialThread
 import requests
-import serial
+from datetime import datetime
 
 
 class SenseEnvironment(QMainWindow):
@@ -46,6 +46,7 @@ class SenseEnvironment(QMainWindow):
         self.control_btn = QPushButton("Start plot")
         self.control_btn.clicked.connect(self.plot_start)
         self.save_btn = QPushButton("Save log")
+        self.save_btn.clicked.connect(self.save_log)
         self.plot_start = False
 
         # val
@@ -53,6 +54,7 @@ class SenseEnvironment(QMainWindow):
         self.temp = 0
         self.humidity = 0
         self.pressure = 0
+        self.log = []
 
         # Timer
         self.timer = QTimer()
@@ -137,6 +139,8 @@ class SenseEnvironment(QMainWindow):
             if self.source == 'HTTP API':
                 data = self.source_http()
                 if data is not None:
+                    # add to log.
+                    self.log_data(data)
                     self.cnt += 1
                     self.temp = data.get('temperature')
                     self.humidity = data.get('humidity')
@@ -148,13 +152,6 @@ class SenseEnvironment(QMainWindow):
                     self.plot_humidity.plot([self.cnt], [self.humidity], pen=None, symbol="+", symbolSize=10)
                     self.plot_pressure.plot([self.cnt], [self.pressure], pen=None, symbol="+", symbolSize=10)
                     QApplication.processEvents()
-
-    """
-    Update plot serial.
-    """
-    def plot_update_serial(self):
-        pass
-
     """
     Start/stop plotting.
     """
@@ -162,7 +159,8 @@ class SenseEnvironment(QMainWindow):
         if self.source == 'HTTP API':
             self.interval = int(self.interval_field.text())
             if self.plot_start is not True:
-                self.timer.start(self.interval)
+                interval = self.interval * 1000
+                self.timer.start(interval)
                 self.control_btn.setText("Stop plot")
                 self.plot_start = True
             else:
@@ -172,6 +170,7 @@ class SenseEnvironment(QMainWindow):
 
         if self.source == 'Serial port':
             if self.plot_start is not True:
+                self.interval = int(self.interval_field.text())
                 self.thread.interval = self.interval
                 self.thread.serial_port = self.serial_port
                 self.thread.serial_baud = self.serial_baud
@@ -225,8 +224,9 @@ class SenseEnvironment(QMainWindow):
     """
     @pyqtSlot(str)
     def source_serial_port(self, data):
+        self.log_data(data)
         self.cnt += self.interval
-        data_str = data.split(",")
+        data_str = data.rstrip().split(",")
         self.temp = data_str[0]
         self.humidity = data_str[1]
         self.pressure = data_str[2]
@@ -237,6 +237,29 @@ class SenseEnvironment(QMainWindow):
         self.plot_humidity.plot([self.cnt], [self.humidity], pen=None, symbol="+", symbolSize=10)
         self.plot_pressure.plot([self.cnt], [self.pressure], pen=None, symbol="+", symbolSize=10)
         QApplication.processEvents()
+
+    """
+    Log data
+    """
+    def log_data(self, data):
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        if self.source == 'HTTP API':
+            log = "{},{},{},{}".format(now, data.get('temperature'), data.get('humidity'), data.get('pressure'))
+            self.log.append(log)
+
+        if self.source == 'Serial port':
+            data_split = data.rstrip().split(",")
+            log = "{},{},{},{}".format(now, data_split[0], data_split[1], data_split[2])
+            self.log.append(log)
+
+    """
+    Save log.
+    """
+    def save_log(self):
+        log_now = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        with open("log-{}.txt".format(log_now),"w") as log:
+            for item in self.log:
+                log.write("%s\n" % item)
 
 
 if __name__ == '__main__':
