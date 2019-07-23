@@ -2,6 +2,8 @@
 This simple PyQT5 desktop app show realtime data plotting from Raspberry Pi 3 and Arduino Uno via serial port.
 
 # Screenshots
+![Screenshot1](https://github.com/satujamsaja/pyqt5/raw/master/sensehat/httpapi.png?raw=true)
+![Screenshot2](https://github.com/satujamsaja/pyqt5/raw/master/sensehat/serialport.png?raw=true)
 
 # Requirements
 * PyQT5
