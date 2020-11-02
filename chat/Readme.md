@@ -14,11 +14,11 @@ This app demonstrate how to create simple chat server and client using Python So
 # How to install
 * Setup your python virtual environtment
 * Install above requirements using pip, from command prompt/terminal
-  $ pip install eventlet
-  $ pip install pyqt5
-  $ pip install pyyaml
-  $ pip install pythin-socketio
-  $ pip install requests
+  * $ pip install eventlet
+  * $ pip install pyqt5
+  * $ pip install pyyaml
+  * $ pip install pythin-socketio
+  * $ pip install requests
 
 # How to run Server
 * Go to server folder (server/)
