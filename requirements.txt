@@ -1,0 +1,15 @@
+bidict==0.21.2
+certifi==2020.12.5
+chardet==4.0.0
+dnspython==1.16.0
+eventlet==0.30.0
+greenlet==0.4.17
+idna==2.10
+PyQt5==5.15.2
+PyQt5-sip==12.8.1
+python-engineio==4.0.0
+python-socketio==5.0.4
+PyYAML==5.3.1
+requests==2.25.1
+six==1.15.0
+urllib3==1.26.2
